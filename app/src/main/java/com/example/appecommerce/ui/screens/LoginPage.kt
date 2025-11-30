@@ -22,8 +22,11 @@ fun LoginPage(
     onNavigateToSignUp: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf<String?>(null) }
+    var password by remember { mutableStateOf<String?>(null) }
+
+    var isEmailError by remember { mutableStateOf(false) }
+    var isPasswordError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -33,12 +36,8 @@ fun LoginPage(
         horizontalAlignment = Alignment.Start
     ) {
 
-        Text(
-            "Login",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+        Text("Login", fontSize = 26.sp, fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.CenterHorizontally))
 
         Spacer(modifier = Modifier.height(30.dp))
 
@@ -51,14 +50,12 @@ fun LoginPage(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        var email by remember { mutableStateOf("") }
-        var isEmailError by remember { mutableStateOf(false) }
-
+        // ---------------- EMAIL ----------------
         OutlinedTextField(
-            value = email,
+            value = email ?: "",
             onValueChange = {
                 email = it
-                isEmailError = it.isBlank()   // erreur si vide
+                isEmailError = it.isBlank()
             },
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Default.Email, null) },
@@ -75,23 +72,43 @@ fun LoginPage(
             )
         }
 
-
         Spacer(modifier = Modifier.height(18.dp))
 
+        // ---------------- PASSWORD ----------------
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = password ?: "",
+            onValueChange = {
+                password = it
+                isPasswordError = it.isBlank()
+            },
             label = { Text("Password") },
             leadingIcon = { Icon(Icons.Default.Lock, null) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            isError = isPasswordError
         )
+
+        if (isPasswordError) {
+            Text(
+                text = "Veuillez entrer un mot de passe",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(25.dp))
 
+        // ---------------- LOGIN BUTTON ----------------
         Button(
-            onClick = { onLoginSuccess() }, // ➜ Navigate to ProductListPage
+            onClick = {
+                isEmailError = email.isNullOrBlank()
+                isPasswordError = password.isNullOrBlank()
+
+                if (!isEmailError && !isPasswordError) {
+                    onLoginSuccess()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -111,7 +128,7 @@ fun LoginPage(
                 text = stringResource(id = R.string.signup),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.clickable { onNavigateToSignUp() } // ➜ Navigate to SignUpPage
+                modifier = Modifier.clickable { onNavigateToSignUp() }
             )
         }
     }

@@ -27,11 +27,19 @@ fun SignUpPage(
     onBackClick: () -> Unit
 ) {
 
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    // Variables NULLABLES
+    var fullName by remember { mutableStateOf<String?>(null) }
+    var email by remember { mutableStateOf<String?>(null) }
+    var phone by remember { mutableStateOf<String?>(null) }
+    var password by remember { mutableStateOf<String?>(null) }
+
     var passwordVisible by remember { mutableStateOf(false) }
+
+    // Erreurs
+    var isNameError by remember { mutableStateOf(false) }
+    var isEmailError by remember { mutableStateOf(false) }
+    var isPhoneError by remember { mutableStateOf(false) }
+    var isPasswordError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -45,7 +53,7 @@ fun SignUpPage(
             text = "<",
             fontSize = 26.sp,
             modifier = Modifier
-                .clickable { onBackClick() } // ➜ Return to LoginPage
+                .clickable { onBackClick() }
                 .padding(bottom = 16.dp)
         )
 
@@ -58,14 +66,12 @@ fun SignUpPage(
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        var fullName by remember { mutableStateOf("") }
-        var isNameError by remember { mutableStateOf(false) }
-
+        // NAME
         OutlinedTextField(
-            value = fullName,
+            value = fullName ?: "",
             onValueChange = {
                 fullName = it
-                isNameError = it.isBlank()  // erreur si vide
+                isNameError = it.isBlank()
             },
             label = { Text("Name") },
             leadingIcon = { Icon(Icons.Default.Person, null) },
@@ -73,7 +79,6 @@ fun SignUpPage(
             shape = RoundedCornerShape(12.dp),
             isError = isNameError
         )
-
         if (isNameError) {
             Text(
                 text = "Veuillez entrer votre nom",
@@ -82,17 +87,14 @@ fun SignUpPage(
             )
         }
 
-
         Spacer(modifier = Modifier.height(18.dp))
 
-        var email by remember { mutableStateOf("") }
-        var isEmailError by remember { mutableStateOf(false) }
-
+        // EMAIL
         OutlinedTextField(
-            value = email,
+            value = email ?: "",
             onValueChange = {
                 email = it
-                isEmailError = it.isBlank()   // erreur si vide
+                isEmailError = it.isBlank()
             },
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Default.Email, null) },
@@ -100,7 +102,6 @@ fun SignUpPage(
             shape = RoundedCornerShape(12.dp),
             isError = isEmailError
         )
-
         if (isEmailError) {
             Text(
                 text = "Veuillez entrer un email",
@@ -111,14 +112,12 @@ fun SignUpPage(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        var phone by remember { mutableStateOf("") }
-        var isPhoneError by remember { mutableStateOf(false) }
-
+        // PHONE
         OutlinedTextField(
-            value = phone,
+            value = phone ?: "",
             onValueChange = {
                 phone = it
-                isPhoneError = it.isBlank()   // erreur si vide
+                isPhoneError = it.isBlank()
             },
             label = { Text("Phone number") },
             leadingIcon = { Icon(Icons.Default.Phone, null) },
@@ -126,7 +125,6 @@ fun SignUpPage(
             shape = RoundedCornerShape(12.dp),
             isError = isPhoneError
         )
-
         if (isPhoneError) {
             Text(
                 text = "Veuillez entrer votre numéro",
@@ -135,32 +133,59 @@ fun SignUpPage(
             )
         }
 
-
         Spacer(modifier = Modifier.height(18.dp))
 
+        // PASSWORD
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = password ?: "",
+            onValueChange = {
+                password = it
+                isPasswordError = it.isBlank()
+            },
             label = { Text("password") },
-
             leadingIcon = { Icon(Icons.Default.Visibility, null) },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation =
+                if (passwordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        if (passwordVisible) Icons.Default.VisibilityOff
+                        else Icons.Default.Visibility,
                         null
                     )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            isError = isPasswordError
         )
+        if (isPasswordError) {
+            Text(
+                text = "Veuillez entrer un mot de passe",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // BUTTON
         Button(
-            onClick = { onSignUpSuccess() }, // ➜ Navigate to ProductListPage
+            onClick = {
+
+                // Vérification AVANT navigation
+                isNameError = fullName.isNullOrBlank()
+                isEmailError = email.isNullOrBlank()
+                isPhoneError = phone.isNullOrBlank()
+                isPasswordError = password.isNullOrBlank()
+
+                // Si tout est OK → navigation
+                if (!isNameError && !isEmailError && !isPhoneError && !isPasswordError) {
+                    onSignUpSuccess()
+                }
+
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -182,7 +207,7 @@ fun SignUpPage(
                 text = stringResource(id = R.string.signin),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.clickable { onBackClick() } // ➜ Back to LoginPage
+                modifier = Modifier.clickable { onBackClick() }
             )
         }
     }
