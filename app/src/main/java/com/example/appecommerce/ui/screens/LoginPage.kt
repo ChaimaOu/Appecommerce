@@ -16,17 +16,25 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appecommerce.R
+import com.example.appecommerce.repository.FirebaseAuthRepository
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun LoginPage(
     onNavigateToSignUp: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-    var email by remember { mutableStateOf<String?>(null) }
-    var password by remember { mutableStateOf<String?>(null) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     var isEmailError by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
+
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val repository = FirebaseAuthRepository()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -36,15 +44,10 @@ fun LoginPage(
         horizontalAlignment = Alignment.Start
     ) {
 
-        Text("Login", fontSize = 26.sp, fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally))
-
-        Spacer(modifier = Modifier.height(30.dp))
-
         Text(
-            text = stringResource(id = R.string.welcome_back),
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
+            "Login",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
@@ -52,10 +55,10 @@ fun LoginPage(
 
         // ---------------- EMAIL ----------------
         OutlinedTextField(
-            value = email ?: "",
+            value = email,
             onValueChange = {
-                email = it
-                isEmailError = it.isBlank()
+                email = it.trim()
+                isEmailError = email.isBlank()
             },
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Default.Email, null) },
@@ -66,7 +69,7 @@ fun LoginPage(
 
         if (isEmailError) {
             Text(
-                text = "Veuillez entrer un email",
+                text = "Veuillez entrer un email valide",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -76,10 +79,10 @@ fun LoginPage(
 
         // ---------------- PASSWORD ----------------
         OutlinedTextField(
-            value = password ?: "",
+            value = password,
             onValueChange = {
                 password = it
-                isPasswordError = it.isBlank()
+                isPasswordError = password.isBlank()
             },
             label = { Text("Password") },
             leadingIcon = { Icon(Icons.Default.Lock, null) },
@@ -102,11 +105,18 @@ fun LoginPage(
         // ---------------- LOGIN BUTTON ----------------
         Button(
             onClick = {
-                isEmailError = email.isNullOrBlank()
-                isPasswordError = password.isNullOrBlank()
+                isEmailError = email.isBlank()
+                isPasswordError = password.isBlank()
 
                 if (!isEmailError && !isPasswordError) {
-                    onLoginSuccess()
+                    scope.launch {
+                        val result = repository.loginUser(email.trim(), password)
+                        if (result.isSuccess) {
+                            onLoginSuccess()
+                        } else {
+                            errorMessage = result.exceptionOrNull()?.message
+                        }
+                    }
                 }
             },
             modifier = Modifier
@@ -115,7 +125,15 @@ fun LoginPage(
             colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Login", color = MaterialTheme.colorScheme.onPrimary)
+            Text("Login")
+        }
+
+        errorMessage?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(25.dp))
@@ -133,3 +151,4 @@ fun LoginPage(
         }
     }
 }
+

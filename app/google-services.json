@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "135637242658",
+    "project_id": "appecommerce-mobile",
+    "storage_bucket": "appecommerce-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135637242658:android:2ad727d47821292d4c8b7b",
+        "android_client_info": {
+          "package_name": "com.example.appecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhYPDwiYnR-ADvOZzyP9tQ0aGh5X-8140"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
