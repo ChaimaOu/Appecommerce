@@ -1,8 +1,5 @@
 package com.example.appecommerce.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,38 +11,56 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
-import com.example.appecommerce.data.productsList
+import coil.compose.AsyncImage
 import com.example.appecommerce.ui.components.BottomNavBar
+import com.example.appecommerce.viewmodel.ProductViewModel
 import com.example.appecommerce.data.CartManager
-
 
 @Composable
 fun ProductDetailsScreen(
     productId: Int,
     navController: NavHostController,
-
     onBackClick: () -> Unit,
-    onProductClick: (Int) -> Unit
+    onProductClick: (Int) -> Unit,
+    viewModel: ProductViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val product = productsList.find { it.id == productId }
-        ?: return Text("Product not found", modifier = Modifier.padding(30.dp))
+
+    val products by viewModel.products.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    val product = products.find { it.id == productId }
+
+    if (isLoading) {
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
+    if (product == null) {
+        Text("Product not found", modifier = Modifier.padding(30.dp))
+        return
+    }
 
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 onHomeClick = {},
-                onCartClick = {navController.navigate("cart")},
+                onCartClick = { navController.navigate("cart") },
                 onProfileClick = {}
             )
         }
@@ -64,15 +79,15 @@ fun ProductDetailsScreen(
                     .verticalScroll(rememberScrollState())
             ) {
 
-                // IMAGE + BACK + SHARE
+                // IMAGE + BACK + SHARE BUTTONS
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
                 ) {
 
-                    Image(
-                        painter = painterResource(id = product.imageRes),
+                    AsyncImage(
+                        model = product.image,
                         contentDescription = product.name,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -114,38 +129,30 @@ fun ProductDetailsScreen(
                         color = Color(0xFFB71C1C)
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
+                    // Description from API
                     Text(
-                        text = "Handcrafted in Marrakech",
-                        color = Color(0xFFB71C1C),
-                        fontSize = 14.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = "Eco-friendly cotton tote bag with intricate Moroccan embroidery. Perfect for everyday use.",
+                        text = product.description ?: "No description available.",
                         fontSize = 15.sp,
                         color = Color.DarkGray
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Details",
+                        text = "Related Products",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                     )
 
-                    // HORIZONTAL LIST
+                    // RELATED ITEMS (based on category or just other products)
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
 
-                        val otherProducts = productsList.filter { it.id != product.id }
+                        val otherProducts = products.filter { it.id != product.id }
 
                         items(otherProducts) { item ->
 
@@ -154,8 +161,8 @@ fun ProductDetailsScreen(
                                     .width(140.dp)
                                     .clickable { onProductClick(item.id) }
                             ) {
-                                Image(
-                                    painter = painterResource(id = item.imageRes),
+                                AsyncImage(
+                                    model = item.image,
                                     contentDescription = item.name,
                                     modifier = Modifier
                                         .height(120.dp)
@@ -186,7 +193,7 @@ fun ProductDetailsScreen(
                 }
             }
 
-            // ----------- FIXED ADD TO CART BUTTON -----------
+            // ----------- ADD TO CART BUTTON -----------
             Button(
                 onClick = {
                     CartManager.addToCart(product)
@@ -197,7 +204,6 @@ fun ProductDetailsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(55.dp)
-
             ) {
                 Text("Add to Cart", color = Color.White, fontSize = 18.sp)
             }

@@ -17,13 +17,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.appecommerce.model.Product
 import com.example.appecommerce.ui.components.BottomNavBar
+import com.example.appecommerce.data.CartManager
 
 
 @Composable
 fun CartPage(
-    cartItems: List<Product>,
+    cartItems: List<Product> = CartManager.cartItems, // Default to CartManager
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
@@ -35,7 +37,7 @@ fun CartPage(
     }
 
     // Prices
-    val subtotal = cartItems.sumOf { it.price * quantities[it.id]!! }
+    val subtotal = cartItems.sumOf { it.price * (quantities[it.id] ?: 1) }
     val shipping = 10.0
     val total = subtotal + shipping
 
@@ -94,7 +96,7 @@ fun CartPage(
                 ) {
 
                     Image(
-                        painter = painterResource(id = product.imageRes),
+                        painter = rememberAsyncImagePainter(model = product.image),
                         contentDescription = product.name,
                         modifier = Modifier
                             .size(70.dp)
@@ -122,9 +124,9 @@ fun CartPage(
                         // Minus
                         IconButton(
                             onClick = {
-                                if (quantities[product.id]!! > 1) {
+                                if ((quantities[product.id] ?: 1) > 1) {
                                     quantities = quantities.toMutableMap().also {
-                                        it[product.id] = it[product.id]!! - 1
+                                        it[product.id] = (it[product.id] ?: 1) - 1
                                     }
                                 }
                             }
@@ -142,7 +144,7 @@ fun CartPage(
                         IconButton(
                             onClick = {
                                 quantities = quantities.toMutableMap().also {
-                                    it[product.id] = it[product.id]!! + 1
+                                    it[product.id] = (it[product.id] ?: 1) + 1
                                 }
                             }
                         ) {

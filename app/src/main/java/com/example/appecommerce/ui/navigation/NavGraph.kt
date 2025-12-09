@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.appecommerce.data.productsList
 import com.example.appecommerce.ui.screens.LogoPage
 import com.example.appecommerce.ui.screens.LoginPage
 import com.example.appecommerce.ui.screens.ProductDetailsScreen
@@ -87,19 +86,13 @@ fun NavGraph(navController: NavHostController) {
         // ---------------------- CART PAGE ------------------------
         composable("cart") {
             CartPage(
-                cartItems = productsList.take(2), // ➜ À remplacer par ton vrai panier
+                // Uses default CartManager.cartItems
                 onBackClick = { navController.popBackStack() },
                 onHomeClick = { navController.navigate("productList") },
                 onCartClick = { navController.navigate("cart") },
-
-
-                        onProfileClick = { navController.navigate("profile") }
-
+                onProfileClick = { navController.navigate("profile") }
             )
         }
-
-
-
 
     }
 }

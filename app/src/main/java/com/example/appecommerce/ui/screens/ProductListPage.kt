@@ -1,6 +1,5 @@
 package com.example.appecommerce.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -9,16 +8,15 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.appecommerce.data.productsList
+import androidx.compose.ui.text.font.FontWeight
+import coil.compose.AsyncImage
+import com.example.appecommerce.viewmodel.ProductViewModel
 import com.example.appecommerce.model.Product
 import com.example.appecommerce.ui.components.BottomNavBar
 
@@ -28,9 +26,12 @@ fun ProductListPage(
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onProductClick: (Int) -> Unit
-
+    onProductClick: (Int) -> Unit,
+    viewModel: ProductViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+
+    val products by viewModel.products.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -72,25 +73,26 @@ fun ProductListPage(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- Products Grid ---
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 80.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(productsList) { product ->
-                    ProductCard(product) {
-                        onProductClick(product.id)
+            if (isLoading) {
+                CircularProgressIndicator()
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 80.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(products) { product ->
+                        ProductCard(product) {
+                            onProductClick(product.id)
+                        }
                     }
-
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun FilterChip(text: String) {
@@ -109,13 +111,13 @@ fun FilterChip(text: String) {
 @Composable
 fun ProductCard(product: Product, onClick: () -> Unit = {}) {
     Column(modifier = Modifier.clickable { onClick() }) {
-        Image(
-            painter = painterResource(id = product.imageRes),
+
+        AsyncImage(
+            model = product.image,   // URL de l'image venant de l'API
             contentDescription = product.name,
             modifier = Modifier
                 .height(150.dp)
-                .fillMaxWidth(),
-            contentScale = ContentScale.Crop
+                .fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(6.dp))
