@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") // Added compose compiler plugin
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
+    
 }
 
 android {
@@ -67,4 +68,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation(libs.androidx.runtime)
     implementation(libs.ui)
+
+
+    // Room Database
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    ksp("androidx.room:room-compiler:$room_version") // ← KSP au lieu de kapt
 }

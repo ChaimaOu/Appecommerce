@@ -196,7 +196,8 @@ fun ProductDetailsScreen(
             // ----------- ADD TO CART BUTTON -----------
             Button(
                 onClick = {
-                    CartManager.addToCart(product)
+                    viewModel.addToCart(product)
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD32F2F)

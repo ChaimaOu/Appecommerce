@@ -1,33 +1,57 @@
 package com.example.appecommerce.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.Room
+import com.example.appecommerce.database.AppDataBase
+import com.example.appecommerce.database.CartItemEntity
 import com.example.appecommerce.model.Product
+import com.example.appecommerce.repository.CartRepository
 import com.example.appecommerce.repository.ProductRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class ProductViewModel : ViewModel() {
+class ProductViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repo = ProductRepository()
 
-    // --- Produits de l'API ---
+    // ------------------- ROOM DATABASE -------------------
+    private val db = Room.databaseBuilder(
+        application,
+        AppDataBase::class.java,
+        "app_database"
+    ).build()
+
+    private val cartRepo = CartRepository(db.cartDao())
+
+    val cartItems = cartRepo.cartItems
+
+    fun addToCart(product: Product) {
+        viewModelScope.launch {
+            val item = CartItemEntity(
+                id = product.id,
+                name = product.name,
+                price = product.price,
+                image = product.image,
+                quantity = 1
+            )
+            cartRepo.addToCart(item)
+        }
+    }
+    // -----------------------------------------------------
+
+
+    // ---------------- PRODUITS API ------------------------
     private val _products = MutableStateFlow<List<Product>>(emptyList())
     val products: StateFlow<List<Product>> = _products
 
-    // --- Loading ---
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // --- Search Query ---
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
-    // --- Selected Filter ---
     private val _selectedFilter = MutableStateFlow<String?>(null)
     val selectedFilter: StateFlow<String?> = _selectedFilter
 
@@ -36,30 +60,21 @@ class ProductViewModel : ViewModel() {
     }
 
     fun applyFilter(filter: String) {
-        if (_selectedFilter.value == filter) {
-            _selectedFilter.value = null // Deselect if already selected
-        } else {
-            _selectedFilter.value = filter
-        }
+        _selectedFilter.value = if (_selectedFilter.value == filter) null else filter
     }
 
-    // --- Produits filtrés par la recherche et le filtre ---
     val filteredProducts = combine(_products, _searchQuery, _selectedFilter) { list, query, filter ->
         var result = list
 
-        // 1. Filter by Search Query
         if (query.isNotBlank()) {
-            result = result.filter {
-                it.name.contains(query, ignoreCase = true)
-            }
+            result = result.filter { it.name.contains(query, ignoreCase = true) }
         }
 
-        // 2. Filter by Category/Filter
         if (filter != null) {
             when (filter) {
-                "Price" -> result = result.sortedBy { it.price } // Example: Sort by price
+                "Price" -> result = result.sortedBy { it.price }
                 "New Arrivals" -> result = result.filter { it.isNew }
-                "Collections" -> { /* Logic for collections if needed */ }
+                "Collections" -> {}
             }
         }
 
@@ -85,4 +100,17 @@ class ProductViewModel : ViewModel() {
             }
         }
     }
+    fun removeFromCart(item: CartItemEntity) {
+        viewModelScope.launch {
+            cartRepo.removeItem(item)
+        }
+    }
+
+    fun updateQuantity(id: Int, newQty: Int) {
+        viewModelScope.launch {
+            cartRepo.updateQuantity(id, newQty)
+        }
+    }
+
+
 }

@@ -13,35 +13,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.appecommerce.model.Product
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appecommerce.ui.components.BottomNavBar
-import com.example.appecommerce.data.CartManager
-
+import com.example.appecommerce.viewmodel.ProductViewModel
+import com.example.appecommerce.database.CartItemEntity
 
 @Composable
 fun CartPage(
-    cartItems: List<Product> = CartManager.cartItems, // Default to CartManager
     onBackClick: () -> Unit,
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    viewModel: ProductViewModel = viewModel()
 ) {
-    // Quantities
-    var quantities by remember {
-        mutableStateOf(cartItems.associate { it.id to 1 }.toMutableMap())
-    }
+    val cartItems by viewModel.cartItems.collectAsState(initial = emptyList())
 
-    // Prices
-    val subtotal = cartItems.sumOf { it.price * (quantities[it.id] ?: 1) }
+    val subtotal = cartItems.sumOf { it.price * it.quantity }
     val shipping = 10.0
     val total = subtotal + shipping
 
-    // Snackbar State
     val snackbarHostState = remember { SnackbarHostState() }
     var showSuccess by remember { mutableStateOf(false) }
 
@@ -64,7 +58,7 @@ fun CartPage(
                 .padding(16.dp)
         ) {
 
-            // TOP BAR
+            // --- TOP BAR ---
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -75,18 +69,14 @@ fun CartPage(
 
                 Spacer(modifier = Modifier.width(90.dp))
 
-                Text(
-                    text = "Cart",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Cart", fontSize = 22.sp, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
 
-            // CART ITEMS
-            cartItems.forEach { product ->
+            // --- CART ITEMS ---
+            cartItems.forEach { item ->
 
                 Row(
                     modifier = Modifier
@@ -96,8 +86,8 @@ fun CartPage(
                 ) {
 
                     Image(
-                        painter = rememberAsyncImagePainter(model = product.image),
-                        contentDescription = product.name,
+                        painter = rememberAsyncImagePainter(item.image),
+                        contentDescription = item.name,
                         modifier = Modifier
                             .size(70.dp)
                             .clip(RoundedCornerShape(10.dp))
@@ -106,28 +96,19 @@ fun CartPage(
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = product.name,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Moroccan tote bag",
-                            fontSize = 13.sp,
-                            color = Color.Gray
-                        )
+                        Text(item.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Moroccan tote bag", fontSize = 13.sp, color = Color.Gray)
                     }
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Minus
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        // --- MINUS ---
                         IconButton(
                             onClick = {
-                                if ((quantities[product.id] ?: 1) > 1) {
-                                    quantities = quantities.toMutableMap().also {
-                                        it[product.id] = (it[product.id] ?: 1) - 1
-                                    }
+                                if (item.quantity > 1) {
+                                    viewModel.updateQuantity(item.id, item.quantity - 1)
+                                } else {
+                                    viewModel.removeFromCart(item)
                                 }
                             }
                         ) {
@@ -135,17 +116,15 @@ fun CartPage(
                         }
 
                         Text(
-                            text = "${quantities[product.id]}",
+                            text = "${item.quantity}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
 
-                        // Plus
+                        // --- ADD ---
                         IconButton(
                             onClick = {
-                                quantities = quantities.toMutableMap().also {
-                                    it[product.id] = (it[product.id] ?: 1) + 1
-                                }
+                                viewModel.updateQuantity(item.id, item.quantity + 1)
                             }
                         ) {
                             Icon(Icons.Default.Add, contentDescription = "Add")
@@ -156,18 +135,16 @@ fun CartPage(
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            // PRICES
+            // --- PRICES ---
             PriceRow("Subtotal", subtotal)
             PriceRow("Shipping", shipping)
             PriceRow("Total", total, bold = true)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // CHECKOUT BUTTON
+            // --- CHECKOUT BUTTON ---
             Button(
-                onClick = {
-                    showSuccess = true
-                },
+                onClick = { showSuccess = true },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -178,7 +155,6 @@ fun CartPage(
         }
     }
 
-    // Show Snackbar after clicking checkout
     LaunchedEffect(showSuccess) {
         if (showSuccess) {
             snackbarHostState.showSnackbar("Commande validée avec succès !")
@@ -196,7 +172,7 @@ fun PriceRow(label: String, value: Double, bold: Boolean = false) {
     ) {
         Text(label, fontSize = 16.sp)
         Text(
-            text = "$${String.format("%.2f", value)}",
+            text = "${String.format("%.2f", value)} MAD",
             fontSize = 16.sp,
             fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal
         )
