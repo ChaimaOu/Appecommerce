@@ -37,6 +37,9 @@ fun ProductDetailsScreen(
 
     val products by viewModel.products.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showMessage by remember { mutableStateOf(false) }
+
 
     val product = products.find { it.id == productId }
 
@@ -57,6 +60,8 @@ fun ProductDetailsScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+
         bottomBar = {
             BottomNavBar(
                 onHomeClick = {},
@@ -197,7 +202,7 @@ fun ProductDetailsScreen(
             Button(
                 onClick = {
                     viewModel.addToCart(product)
-
+                    showMessage = true
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFD32F2F)
@@ -208,6 +213,17 @@ fun ProductDetailsScreen(
             ) {
                 Text("Add to Cart", color = Color.White, fontSize = 18.sp)
             }
+
         }
     }
+    LaunchedEffect(showMessage) {
+        if (showMessage) {
+            snackbarHostState.showSnackbar(
+                message = "Produit ajouté au panier !",
+                withDismissAction = true
+            )
+            showMessage = false
+        }
+    }
+
 }
