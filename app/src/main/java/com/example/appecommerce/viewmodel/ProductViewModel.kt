@@ -111,6 +111,10 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
             cartRepo.updateQuantity(id, newQty)
         }
     }
-
+    fun clearCart() {
+        viewModelScope.launch {
+            cartRepo.clearCart()
+        }
+    }
 
 }

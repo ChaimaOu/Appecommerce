@@ -4,12 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.appecommerce.ui.screens.LogoPage
-import com.example.appecommerce.ui.screens.LoginPage
-import com.example.appecommerce.ui.screens.ProductDetailsScreen
-import com.example.appecommerce.ui.screens.SignUpPage
-import com.example.appecommerce.ui.screens.ProductListPage
-import com.example.appecommerce.ui.screens.CartPage
+import com.example.appecommerce.ui.screens.*
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -22,9 +17,7 @@ fun NavGraph(navController: NavHostController) {
         // ------------------------- LOGO PAGE -------------------------
         composable("logo") {
             LogoPage(
-                onStartClick = {
-                    navController.navigate("login")
-                },
+                onStartClick = { navController.navigate("login") },
                 onFinish = { }
             )
         }
@@ -32,12 +25,10 @@ fun NavGraph(navController: NavHostController) {
         // ------------------------- LOGIN PAGE -------------------------
         composable("login") {
             LoginPage(
-                onNavigateToSignUp = {
-                    navController.navigate("signup")
-                },
+                onNavigateToSignUp = { navController.navigate("signup") },
                 onLoginSuccess = {
                     navController.navigate("productList") {
-                        popUpTo("login") { inclusive = true } // optional
+                        popUpTo("login") { inclusive = true }
                     }
                 }
             )
@@ -51,9 +42,7 @@ fun NavGraph(navController: NavHostController) {
                         popUpTo("signup") { inclusive = true }
                     }
                 },
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                onBackClick = { navController.popBackStack() }
             )
         }
 
@@ -64,18 +53,17 @@ fun NavGraph(navController: NavHostController) {
                 onHomeClick = { /* déjà ici */ },
                 onCartClick = { navController.navigate("cart") },
                 onProfileClick = { navController.navigate("profile") },
-                onProductClick = { id ->
-                    navController.navigate("productDetails/$id")
-                }
+                onProductClick = { id -> navController.navigate("productDetails/$id") }
             )
         }
+
         // ------------------------- PRODUCT DETAILS PAGE -------------------------
         composable("productDetails/{productId}") { backStack ->
             val id = backStack.arguments?.getString("productId")?.toInt() ?: 0
+
             ProductDetailsScreen(
                 productId = id,
-                navController = navController,   // ❤️ ajoute ceci
-
+                navController = navController,
                 onBackClick = { navController.popBackStack() },
                 onProductClick = { selectedId ->
                     navController.navigate("productDetails/$selectedId")
@@ -83,16 +71,31 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // ---------------------- CART PAGE ------------------------
+        // ------------------------- CART PAGE -------------------------
         composable("cart") {
             CartPage(
-                // Uses default CartManager.cartItems
                 onBackClick = { navController.popBackStack() },
                 onHomeClick = { navController.navigate("productList") },
-                onCartClick = { navController.navigate("cart") },
-                onProfileClick = { navController.navigate("profile") }
+                onCartClick = { /* déjà ici */ },
+                onProfileClick = { navController.navigate("profile") },
+
+                // ❤️ Checkout → vider panier + aller page succès
+                onCheckoutClick = {
+                    navController.navigate("orderSuccess") {
+                        popUpTo("cart") { inclusive = true }
+                    }
+                }
             )
         }
+
+        // ------------------------- ORDER SUCCESS PAGE -------------------------
+        composable("orderSuccess") {
+            OrderSuccessPage(
+                onHomeClick = { navController.navigate("productList") }
+            )
+        }
+
+        // ------------------------- PROFILE PAGE -------------------------
 
     }
 }

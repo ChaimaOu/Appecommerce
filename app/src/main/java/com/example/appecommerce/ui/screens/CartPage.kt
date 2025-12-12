@@ -28,8 +28,10 @@ fun CartPage(
     onHomeClick: () -> Unit,
     onCartClick: () -> Unit,
     onProfileClick: () -> Unit,
+    onCheckoutClick: () -> Unit,
     viewModel: ProductViewModel = viewModel()
-) {
+)
+{
     val cartItems by viewModel.cartItems.collectAsState(initial = emptyList())
 
     val subtotal = cartItems.sumOf { it.price * it.quantity }
@@ -58,7 +60,6 @@ fun CartPage(
                 .padding(16.dp)
         ) {
 
-            // --- TOP BAR ---
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -75,7 +76,6 @@ fun CartPage(
             Spacer(modifier = Modifier.height(16.dp))
 
 
-            // --- CART ITEMS ---
             cartItems.forEach { item ->
 
                 Row(
@@ -102,7 +102,6 @@ fun CartPage(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
 
-                        // --- MINUS ---
                         IconButton(
                             onClick = {
                                 if (item.quantity > 1) {
@@ -121,7 +120,6 @@ fun CartPage(
                             fontWeight = FontWeight.Bold
                         )
 
-                        // --- ADD ---
                         IconButton(
                             onClick = {
                                 viewModel.updateQuantity(item.id, item.quantity + 1)
@@ -135,16 +133,17 @@ fun CartPage(
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            // --- PRICES ---
             PriceRow("Subtotal", subtotal)
             PriceRow("Shipping", shipping)
             PriceRow("Total", total, bold = true)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- CHECKOUT BUTTON ---
             Button(
-                onClick = { showSuccess = true },
+                onClick = {
+                    viewModel.clearCart()
+                    onCheckoutClick()
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,13 +151,6 @@ fun CartPage(
             ) {
                 Text("Checkout", color = Color.White, fontWeight = FontWeight.Bold)
             }
-        }
-    }
-
-    LaunchedEffect(showSuccess) {
-        if (showSuccess) {
-            snackbarHostState.showSnackbar("Commande validée avec succès !")
-            showSuccess = false
         }
     }
 }

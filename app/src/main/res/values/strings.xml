@@ -5,27 +5,11 @@
     <string name="main_subtitle">Discover our collection of tote bags.</string>
     <string name="get_started">Get Started</string>
     <!--Order Success-->
-    <string name="order_confirmation">Order Confirmation</string>
-    <string name="order_success_message">Your order has been placed successfully!</string>
-    <string name="order_thank_you">
-        Thank you for your purchase! Your order will be shipped within 2–3 business days.
-        You will receive a confirmation email with tracking information shortly.
-    </string>
-    <!--Information local -->
-    <string name="order_summary">Order Summary</string>
-    <string name="order_number_title">Order Number</string>
-    <string name="order_number_value">#123456</string>
-    <string name="order_total_title">Total</string>
-    <string name="order_total_value">$75.00</string>
-    <string name="order_address_title">Shipping Address</string>
-    <string name="order_address_value">123 Medina Street,\nMarrakech, Morocco</string>
-    <string name="continue_shopping">Continue Shopping</string>
 
-    <!-- Failed Order Page -->
-    <string name="failed_order_title">Oops! Something went wrong</string>
-    <string name="failed_order_description">We encountered an issue processing your order. Please review your details and try again.</string>
-    <string name="failed_order_button">Try Again</string>
-    <string name="failed_order_button_contact">Contact Support</string>
+    <!--Information local -->
+
+
+
 
     <string name="login_title">Login</string>
     <string name="welcome_back">Welcome back</string>
@@ -57,113 +41,4 @@
     <string name="create_account">Create Account</string>
 
 
-
-    <!-- Navigation et catégories -->
-    <string name="tote_bags">Tote Bags</string>
-    <string name="price">Price</string>
-    <string name="new_arrivals">New Arrivals</string>
-    <string name="collections">Collections</string>
-
-    <!-- Noms des produits -->
-    <string name="moroccan_mosaic_tote">Moroccan Mosaic Tote</string>
-    <string name="desert_bloom_tote">Desert Bloom Tote</string>
-    <string name="atlas_peaks_tote">Atlas Peaks Tote</string>
-    <string name="sahara_sunset_tote">Sahara Sunset Tote</string>
-
-    <!-- Prix -->
-    <string name="price_35">$35</string>
-    <string name="price_40">$40</string>
-    <string name="price_30">$30</string>
-    <string name="price_45">$45</string>
-
-
-    <string name="product1_name">Moroccan Mosaic Tote</string>
-    <string name="product1_price">$35</string>
-
-    <string name="product2_name">Desert Bloom Tote</string>
-    <string name="product2_price">$40</string>
-
-    <string name="product3_name">Atlas Peaks Tote</string>
-    <string name="product3_price">$30</string>
-
-    <string name="product4_name">Sahara Sunset Tote</string>
-    <string name="product4_price">$45</string>
-
-    <string name="product5_name">Sahara Sunset Tote</string>
-    <string name="product5_price">$45</string>
-
-    <string name="product6_name">Sahara Sunset Tote</string>
-    <string name="product6_price">$55</string>
-    <string name="product7_name">Sahara Sunset Tote</string>
-    <string name="product7_price">$30</string>
-    <string name="product8_name">Sahara Sunset Tote</string>
-    <string name="product8_price">$60</string>
-
-
-    <string name="view_list">List</string>
-    <string name="view_grid">Grid</string>
-    <string name="menu">Menu</string>
-    <string name="back">Back</string>
-
-
-
-    <string name="cart_title">Cart</string>
-
-    <string name="cart_item1_title">Moroccan Leather Tote</string>
-    <string name="cart_item1_subtitle">Tarz rbati tote bag</string>
-
-    <string name="cart_item2_title">Woven Market Tote</string>
-    <string name="cart_item2_subtitle">Moroccan Market Tote</string>
-
-    <string name="checkout">Checkout</string>
-
-
-
-
-
-
-
-
-
-
-
-    <!-- Product List -->
-    <string name="products_title">Tote Bags</string>
-    <string name="filter_price">Price</string>
-    <string name="filter_new_arrivals">New Arrivals</string>
-    <string name="filter_collections">Collections</string>
-
-
-    <!--Barre inférieure -->
-    <string name="nav_home">Home</string>
-    <string name="nav_cart">Cart</string>
-    <string name="nav_profile">Profile</string>
-
-
-
-    <!-- values/strings.xml -->
-    <string name="product1_description">Beautiful mosaic pattern tote bag</string>
-
-    <string name="product2_description">Floral desert inspired tote bag</string>
-
-    <string name="product3_description">Mountain pattern tote bag</string>
-
-    <string name="product4_description">Sunset colors tote bag</string>
-
-    <string name="product5_description">Traditional Berber design tote</string>
-
-    <string name="product6_description">Elegant Casablanca style tote</string>
-
-    <string name="product7_description">Vibrant Marrakech pattern tote</string>
-
-    <string name="product8_description">Classic Fes design tote bag</string>
-
-
-
-    <string name="product_details">Product details</string>
-    <string name="add_to_cart">Add to Cart</string>
-    <string name="buy_now">Buy Now</string>
-    <string name="choose_size">Please select a size</string>
-    <string name="choose_color">Please select a color</string>
-    <string name="added_success">Product added to cart successfully</string>
 </resources>
