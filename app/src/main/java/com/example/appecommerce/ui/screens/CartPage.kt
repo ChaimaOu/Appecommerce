@@ -44,12 +44,16 @@ fun CartPage(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
+            val cartItems by viewModel.cartItems.collectAsState(initial = emptyList())
+
             BottomNavBar(
                 selectedItem = 1,
+                cartCount = cartItems.sumOf { it.quantity },  // <---- badge dynamique
                 onHomeClick = onHomeClick,
                 onCartClick = onCartClick,
                 onProfileClick = onProfileClick
             )
+
         }
     ) { padding ->
 

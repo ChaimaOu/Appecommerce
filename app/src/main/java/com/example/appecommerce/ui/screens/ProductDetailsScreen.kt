@@ -39,6 +39,8 @@ fun ProductDetailsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showMessage by remember { mutableStateOf(false) }
+    val cartItemsDB by viewModel.cartItems.collectAsState(initial = emptyList())
+
 
 
     val product = products.find { it.id == productId }
@@ -64,6 +66,8 @@ fun ProductDetailsScreen(
 
         bottomBar = {
             BottomNavBar(
+                cartCount = cartItemsDB.sumOf { it.quantity },
+
                 onHomeClick = {},
                 onCartClick = { navController.navigate("cart") },
                 onProfileClick = {}

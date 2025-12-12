@@ -19,9 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import coil.compose.AsyncImage
+import com.example.appecommerce.data.CartManager.cartItems
 import com.example.appecommerce.viewmodel.ProductViewModel
 import com.example.appecommerce.model.Product
 import com.example.appecommerce.ui.components.BottomNavBar
+
 
 @Composable
 fun ProductListPage(
@@ -41,10 +43,15 @@ fun ProductListPage(
     val products by viewModel.products.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
+    val cartItemsDB by viewModel.cartItems.collectAsState(initial = emptyList())
+
 
     Scaffold(
         bottomBar = {
             BottomNavBar(
+
+            cartCount = cartItemsDB.sumOf { it.quantity },
+
                 onHomeClick = onHomeClick,
                 onCartClick = onCartClick,
                 onProfileClick = onProfileClick
